@@ -6,7 +6,7 @@ ReconCAS is a locally hosted desktop application that captures raw image data fr
 
 With the V10 release, the system has achieved a true production-grade standard, introducing context-aware OCR corrections, a secure password override infrastructure, and restored multi-variable 3D plotting in the laboratory module.
 
-## ⚙️ Architecture and Technical Capabilities
+## Architecture and Technical Capabilities
 
 The application operates on 3 decoupled layers (Core, Vision, GUI):
 
@@ -29,7 +29,7 @@ The application operates on 3 decoupled layers (Core, Vision, GUI):
 *   **Sandbox (Universe Simulator):** Users can define a base function and multiply it by a spatial modifier/warp function. The system computes the resulting Z matrix and renders a 3D Surface plot. Infinities (NaN/Inf) are filtered out via `np.errstate` to accurately display the absolute minimum/maximum (resistance) peaks.
 *   **Memory Management:** To prevent Matplotlib memory leaks across consecutive renders, explicit garbage collection (`gc.collect()`) and `plt.close('all')` are aggressively invoked.
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 ReconCAS/
@@ -51,7 +51,7 @@ ReconCAS/
 ReconCAS V10 // Quality Assurance & Test Suite Documentation (tests/)
 This document covers the technical architecture and user guide of the automated test suite (tests/) developed to verify the stability, cryptographic integrity, and security filters of the ReconCAS V10 project.
 
-🧪 Test Architecture and Scope
+ Test Architecture and Scope
 The test suite is built upon Python's native unittest framework, auditing critical system components through isolated test scenarios. The directory structure consists of the following modules:
 
 Plaintext
@@ -95,7 +95,7 @@ Context-Aware Corrections: Ensuring substitutions like l -> 1 or O -> 0 are appl
 
 Math Filtering (is_actual_math): Filtering out plain texts ("Hello World") or standalone numbers ("15") read by OCR to avoid unnecessary routing to the CAS engine, while passing valid equations (x + 5 = 10).
 
-🚀 Running the Tests
+ Running the Tests
 To execute the test suite, run the following command from the project's root directory (ReconCAS/):
 
 Bash
@@ -111,7 +111,7 @@ Upon successful completion, an OK message indicating that all scenarios have pas
 
 
 
-🛠️ Installation Guide
+ Installation Guide
 Python 3.8+ and Tesseract-OCR must be installed on your system.
 
 Step 1: Install Tesseract-OCR
