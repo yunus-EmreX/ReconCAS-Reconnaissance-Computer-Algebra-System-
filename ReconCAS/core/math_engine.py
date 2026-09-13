@@ -2,32 +2,24 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
 import re
 
-# --- ÖZEL HATA SINIFLARI ---
 class MathError(Exception):
-    """Matematiksel analiz ve hesaplama hataları"""
     pass
 
 class UnsafeExpressionException(MathError):
-    """Zararlı kod enjeksiyonu veya izin verilmeyen karakter tespiti"""
     pass
 
 class MathEngine:
     TRANSFORMATIONS = standard_transformations + (implicit_multiplication_application,)
     
-    # BEYAZ LİSTE (WHITELIST) FİLTRESİ: Yalnızca matematiğe dair şeylere izin verilir.
     ALLOWED_TOKENS = re.compile(r'^[0-9a-zA-Z\.\,\+\-\*\/\^\(\)\[\]\{\}\=\>\< \t!]+$')
     SAFE_WORDS = ['x', 'y', 'z', 'sin', 'cos', 'tan', 'log', 'sqrt', 'pi', 'e', 'exp']
 
     @staticmethod
     def _lexical_validation(text):
-        """Gelen verinin %100 saf matematik olduğundan emin olur."""
         clean_text = text.lower().strip()
-        
-        # 1. Karakter Kontrolü
         if not MathEngine.ALLOWED_TOKENS.match(clean_text):
             raise UnsafeExpressionException("GÜVENLİK İHLALİ: İzin verilmeyen sembol tespit edildi.")
         
-        # 2. Kelime Kontrolü (Zararlı Python komutlarını engeller)
         words = re.findall(r'[a-z]+', clean_text)
         for word in words:
             if word not in MathEngine.SAFE_WORDS:
@@ -42,19 +34,16 @@ class MathEngine:
     def is_advanced(text):
         if any(op in text for op in ['=', '>', '<']): return True
         try:
-            MathEngine._lexical_validation(text) # Güvenlik taraması
+            MathEngine._lexical_validation(text)
             parsed = parse_expr(MathEngine.format_input(text), transformations=MathEngine.TRANSFORMATIONS)
             return len(parsed.free_symbols) > 0
         except: return False
 
-   @staticmethod
+    @staticmethod
     def evaluate_basic(text):
         try:
-            MathEngine._lexical_validation(text) 
+            MathEngine._lexical_validation(text)
             expr_str = MathEngine.format_input(text).replace('√', 'sqrt')
-            
-            # V10 DÜZELTMESİ (exp bug fix): 'x' veya 'X' harfini SADECE iki rakam arasındaysa çarpma yap.
-            # Örnek: "5 x 3" -> "5 * 3" olur. Ama "exp(2)" veya "2x" bozulmaz!
             expr_str = re.sub(r'(?<=\d)\s*[xX]\s*(?=\d)', '*', expr_str)
             expr_str = re.sub(r'(\d+)!', r'factorial(\1)', expr_str)
             
@@ -64,14 +53,14 @@ class MathEngine:
             if result.is_integer: return int(result)
             return round(float(result), 4)
         except UnsafeExpressionException as e:
-            raise e 
+            raise e
         except Exception as e: 
             raise MathError(f"Temel Hesaplama Hatası: {str(e)}")
 
     @staticmethod
     def analyze_advanced(text):
         try:
-            MathEngine._lexical_validation(text) # Güvenlik taraması
+            MathEngine._lexical_validation(text)
             expr_str = MathEngine.format_input(text)
             
             if '=' in expr_str:
