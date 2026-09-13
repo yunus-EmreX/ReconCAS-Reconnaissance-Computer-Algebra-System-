@@ -45,6 +45,72 @@ ReconCAS/
 │   └── app_windows.py      # Tkinter UI (Login, Terminal, Lab, Sandbox)
 ├── requirements.txt        # Dependencies
 └── main.py                 # Bootloader
+
+
+
+ReconCAS V10 // Quality Assurance & Test Suite Documentation (tests/)
+This document covers the technical architecture and user guide of the automated test suite (tests/) developed to verify the stability, cryptographic integrity, and security filters of the ReconCAS V10 project.
+
+🧪 Test Architecture and Scope
+The test suite is built upon Python's native unittest framework, auditing critical system components through isolated test scenarios. The directory structure consists of the following modules:
+
+Plaintext
+tests/
+├── __init__.py
+├── test_math.py        # Math engine and lexical whitelist security tests
+├── test_auth.py        # Bcrypt cryptography and session management tests
+└── test_ocr.py         # OCR text cleaning and smart corrector tests
+1. test_math.py (Symbolic Math and Security Tests)
+Tests the arithmetic accuracy of the math engine and its resistance against external injection attacks.
+
+Basic Arithmetic & Factorials: Verification of fundamental operations like 587 - 325, sqrt(9), and 12!.
+
+exp() Conflict Fix: A regression test ensuring that exp(0) calls are not corrupted into e*p(0).
+
+Lexical Whitelist Injection Tests: Verifies that the following malicious payloads sent to system parameters are blocked by UnsafeExpressionException before reaching the SymPy parser:
+
+__import__('os').system('dir')
+
+x; print('hacked')
+
+eval('1+1')
+
+foo(x)
+
+Polynomial Root Analysis: Validation of the root set (-4, 1) for the equation x^2 + 3x - 4 = 0.
+
+2. test_auth.py (Cryptography and Session Security Tests)
+Creates a temporary test database (test_recon_cas.db) for each test class to isolate database operations and destroys it upon completion.
+
+Bcrypt Salt & Hashing: Verification that user passwords and recovery hints in user registrations are salted (gensalt) and hashed rather than stored in plaintext.
+
+Authentication Cycle: Successful login scenarios returning a unique user_id, while incorrect passwords deny access.
+
+Password Override (Reset): Ensuring the hash value in the database is securely updated after verifying the secret hint, allowing login with the new password.
+
+3. test_ocr.py (Optical Character Recognition and Smart Corrector Tests)
+Simulates the process of translating Tesseract OCR outputs from raw data into symbolic mathematical expressions.
+
+Context-Aware Corrections: Ensuring substitutions like l -> 1 or O -> 0 are applied only to isolated characters, protecting function names such as log(x) or cos(y) from corruption.
+
+Math Filtering (is_actual_math): Filtering out plain texts ("Hello World") or standalone numbers ("15") read by OCR to avoid unnecessary routing to the CAS engine, while passing valid equations (x + 5 = 10).
+
+🚀 Running the Tests
+To execute the test suite, run the following command from the project's root directory (ReconCAS/):
+
+Bash
+python -m unittest discover -s tests
+Upon successful completion, an OK message indicating that all scenarios have passed will be displayed in the console.
+
+
+
+
+
+
+
+
+
+
 🛠️ Installation Guide
 Python 3.8+ and Tesseract-OCR must be installed on your system.
 
