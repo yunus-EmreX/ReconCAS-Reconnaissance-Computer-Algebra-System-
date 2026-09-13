@@ -1,10 +1,10 @@
 ```markdown
-# ReconCAS (OpticCAS-Terminal)
+# ReconCAS (OpticCAS-Terminal) // V10 Enterprise
 **Vision-Based Computer Algebra System**
 
 ReconCAS is a locally hosted desktop application that captures raw image data from the screen buffer, routes it through an Optical Character Recognition (OCR) pipeline, and translates it into symbolic mathematical expressions for advanced analysis. Unlike standard calculators, it eliminates manual input by allowing users to select screen regions (bounding boxes) to extract and evaluate equations instantly.
 
-With its latest architectural update (V9), the project has moved away from a monolithic structure. It is now highly modular, featuring enterprise-grade security protocols, robust memory management, and significant OCR optimizations.
+With the V10 release, the system has achieved a true production-grade standard, introducing context-aware OCR corrections, a secure password override infrastructure, and restored multi-variable 3D plotting in the laboratory module.
 
 ## ⚙️ Architecture and Technical Capabilities
 
@@ -12,21 +12,22 @@ The application operates on 3 decoupled layers (Core, Vision, GUI):
 
 ### 1. Vision Engine (Image Processing & OCR)
 *   **Image Enhancement:** Selected screen regions are captured via Pillow, upscaled using bicubic/bilinear interpolation, converted to grayscale, and processed through high-contrast multipliers.
-*   **Smart Math Corrector:** Common Tesseract OCR errors (e.g., reading `l` as `1` or `O` as `0`) are rectified using specialized Regex patterns. This ensures that legitimate mathematical functions like `sin`, `cos`, and `log` remain uncorrupted during the correction phase.
-*   **Frame Differencing:** During Live Scanning mode, the system hashes (MD5) consecutive frames. If the visual data remains unchanged, the OCR engine is bypassed. This optimization prevents CPU spiking and minimizes resource overhead.
+*   **Context-Aware Corrector:** Common Tesseract OCR errors (e.g., reading `l` as `1` or `O` as `0`) are rectified using specialized Regex patterns. These substitutions are context-aware (applied only to isolated characters), ensuring that legitimate mathematical functions like `sin`, `cos`, and `log` remain uncorrupted.
+*   **Frame Differencing:** During Live Scanning mode, the system hashes (MD5) consecutive frames. If the visual data remains unchanged, the OCR engine is bypassed. This optimization drastically prevents CPU spiking.
 
 ### 2. Math Engine (Secure Symbolic Analysis)
-*   **Lexical Validation (Whitelist Layer):** To prevent arbitrary code execution (eval vulnerabilities) from malicious or hallucinated OCR outputs, incoming text is subjected to strict lexical validation. Only whitelisted mathematical tokens `[0-9, x, y, +, -, *, /, sin, cos...]` are permitted.
-*   **SymPy Integration:** Sanitized strings are passed to the SymPy engine, which autonomously resolves implicit multiplications (e.g., mapping `2x` to `2*x`) and parses the expression.
+*   **Lexical Validation (Whitelist Layer):** To prevent arbitrary code execution vulnerabilities from malicious or hallucinated OCR outputs, incoming text is subjected to strict lexical validation. Only whitelisted mathematical tokens `[0-9, x, y, +, -, *, /, sin, cos, exp...]` are permitted.
+*   **Smart Implicit Multiplication:** The engine uses targeted Regex to safely map implied operations (like `5 x 3`) to exact syntax (`5 * 3`) strictly between numeric boundaries, preventing failures in explicit functions like `exp(2)`.
+*   **SymPy Integration:** Sanitized strings are passed to the SymPy engine to compute analytical derivatives, indefinite integrals, polynomial factorization, and root solutions with a single click.
 
 ### 3. Core & Security
 *   **Cryptography:** The application utilizes a local SQLite database (`recon_cas_secure.db`). User passwords and recovery hints are never stored in plaintext; they are securely salted and hashed using the `bcrypt` algorithm.
-*   **Session Logging:** All successful authentications, blocked malicious inputs, and evaluated equations are logged into the database with corresponding user IDs and timestamps.
+*   **Session Logging:** All successful authentications, blocked malicious inputs, and evaluated equations are logged into the database with corresponding user IDs and timestamps, creating a solid operational audit trail.
 
 ### 4. CAS Laboratory & Sandbox Studio
-*   **CAS Laboratory:** Dedicated functions allow users to compute analytical derivatives, indefinite integrals, polynomial factorization, and root solutions with a single click. Single-variable (x) expressions are instantly plotted on a Matplotlib 2D axis.
-*   **Sandbox (Universe Simulator):** Users can define a base function (e.g., `sin(x)*cos(y)`) and multiply it by a spatial modifier/warp function (e.g., `x^2`). The system computes the resulting $Z$ matrix and renders a 3D Surface plot. Infinities (NaN/Inf) are filtered out via `np.errstate`, allowing the system to accurately calculate and display the absolute minimum/maximum (resistance) peaks of the matrix.
-*   **Memory Management:** To prevent standard Matplotlib memory leaks across consecutive renders, explicit garbage collection (`gc.collect()`) and `plt.close('all')` are aggressively invoked during graph updates and window terminations.
+*   **Dynamic Rendering (2D/3D):** The CAS Laboratory dynamically scales its Matplotlib output based on variable counts. It plots standard 2D curves for single variables (x) and automatically shifts to 3D surface rendering for dual variables (x, y).
+*   **Sandbox (Universe Simulator):** Users can define a base function and multiply it by a spatial modifier/warp function. The system computes the resulting Z matrix and renders a 3D Surface plot. Infinities (NaN/Inf) are filtered out via `np.errstate` to accurately display the absolute minimum/maximum (resistance) peaks.
+*   **Memory Management:** To prevent Matplotlib memory leaks across consecutive renders, explicit garbage collection (`gc.collect()`) and `plt.close('all')` are aggressively invoked.
 
 ## 📂 Project Structure
 
@@ -34,14 +35,15 @@ The application operates on 3 decoupled layers (Core, Vision, GUI):
 ReconCAS/
 ├── core/
 │   ├── __init__.py
-│   ├── auth_engine.py      # bcrypt, SQLite DB, and Logging
-│   └── math_engine.py      # SymPy Parser and Whitelist Validator
+│   ├── auth_engine.py      # bcrypt, SQLite DB, Logging
+│   └── math_engine.py      # SymPy Parser, Whitelist Validator
 ├── vision/
 │   ├── __init__.py
-│   └── ocr_engine.py       # Tesseract, Pillow, Frame Differencing
+│   └── ocr_engine.py       # Tesseract, Frame Differencing, Context-Aware Fix
 ├── gui/
 │   ├── __init__.py
 │   └── app_windows.py      # Tkinter UI (Login, Terminal, Lab, Sandbox)
+├── requirements.txt        # Dependencies
 └── main.py                 # Bootloader
 🛠️ Installation Guide
 Python 3.8+ and Tesseract-OCR must be installed on your system.
@@ -50,24 +52,24 @@ Step 1: Install Tesseract-OCR
 
 For Windows, download and install the Tesseract installer.
 
-Ensure the installation path matches the default: C:\Program Files\Tesseract-OCR\tesseract.exe (The code explicitly targets this path).
+Ensure the installation path matches the default: C:\Program Files\Tesseract-OCR\tesseract.exe (The engine explicitly targets this path).
 
 Step 2: Clone the Repository
 
 Bash
-git clone (https://github.com/yunus-EmreX/ReconCAS-Reconnaissance-Computer-Algebra-System-.git)
+git clone [https://github.com/YOUR_USERNAME/ReconCAS.git](https://github.com/YOUR_USERNAME/ReconCAS.git)
 cd ReconCAS
 Step 3: Install Dependencies
-Install the required Python packages via pip:
+Install all required Python packages automatically via the requirements file:
 
 Bash
-pip install pytesseract pillow sympy numpy matplotlib bcrypt
+pip install -r requirements.txt
 Step 4: Boot the Application
-Once the environment is ready, execute the main script:
+Execute the main script from the root directory:
 
 Bash
 python main.py
 (Note: The SQLite database will be generated automatically upon the first launch. Use CREATE_ACCOUNT to register your first operator credential before logging in.)
 
 📜 License
-This project is licensed under the Apache License 2.0. See the LICENSE file for detail
+This project is licensed under the Apache License 2.0. See the LICENSE file for details.
