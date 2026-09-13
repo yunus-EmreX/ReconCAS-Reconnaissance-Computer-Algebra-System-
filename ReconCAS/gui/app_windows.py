@@ -8,7 +8,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import sympy as sp
 
-# Çekirdek modüller
 from core.auth_engine import DatabaseEngine, AuthError
 from core.math_engine import MathEngine, MathError, UnsafeExpressionException
 from vision.ocr_engine import OCREngine, OCRError
@@ -21,41 +20,10 @@ THEME = {
 }
 
 class AuthGUI(tk.Tk):
-  
-def show_reset(self):
-        for widget in self.winfo_children(): widget.destroy()
-        tk.Label(self, text="=== PASSWORD OVERRIDE ===", font=("Consolas", 16, "bold"), fg=THEME["accent"], bg=THEME["bg"]).pack(pady=20)
-        
-        tk.Label(self, text=">_ USERNAME:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
-        self.res_user = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"])
-        self.res_user.pack(fill="x", padx=40, pady=5)
-        
-        tk.Label(self, text=">_ SECRET HINT:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
-        self.res_hint = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"])
-        self.res_hint.pack(fill="x", padx=40, pady=5)
-        
-        tk.Label(self, text=">_ NEW PASSWORD:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
-        self.res_pass = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"], show="*")
-        self.res_pass.pack(fill="x", padx=40, pady=5)
-        
-        btn_st = {"font": THEME["font_main"], "bg": THEME["btn_bg"], "fg": THEME["fg"], "activebackground": THEME["active"], "relief": "flat", "bd": 1}
-        tk.Button(self, text="[ OVERRIDE_PROTOCOL ]", command=self.do_reset, **btn_st).pack(fill="x", padx=40, pady=15)
-        tk.Button(self, text="<< BACK", command=self.build_ui, bg=THEME["bg"], fg=THEME["accent"], relief="flat").pack()
-
-    def do_reset(self):
-        success, msg = DatabaseEngine.reset_password(self.res_user.get(), self.res_hint.get(), self.res_pass.get())
-        if success:
-            messagebox.showinfo("SYS_MSG", msg)
-            self.build_ui()
-        else:
-            messagebox.showerror("AUTH_ERROR", msg)
-
- 
-
-        def __init__(self):
+    def __init__(self):
         super().__init__()
-        self.title("SYSTEM.LOGIN // V9.0")
-        self.geometry("380x420")
+        self.title("SYSTEM.LOGIN // V10.0")
+        self.geometry("380x440")
         self.resizable(False, False)
         self.configure(bg=THEME["bg"])
         self.current_user_id = None
@@ -84,12 +52,12 @@ def show_reset(self):
         tk.Button(self, text="[ LOGIN ]", command=self.do_login, **btn_st).pack(fill="x", padx=40, pady=15)
         tk.Button(self, text="[ CREATE_ACCOUNT ]", command=self.show_register, **btn_st).pack(fill="x", padx=40, pady=5)
         tk.Button(self, text="[ FORGOT_PASSWORD ]", command=self.show_reset, fg=THEME["accent"], bg=THEME["btn_bg"], font=THEME["font_main"], relief="flat", bd=0).pack(pady=10)
+
     def do_login(self):
         username = self.ent_user.get()
         success, res = DatabaseEngine.login(username, self.ent_pass.get())
         if success:
             self.current_user_id = res
-            # BTK Madde 30: Gerçek Session Logging (Login başarılı)
             DatabaseEngine.log_session_activity(self.current_user_id, "SYSTEM_AUTH", "LOGIN_SUCCESS")
             self.destroy()
         else: 
@@ -122,11 +90,39 @@ def show_reset(self):
             if success: self.build_ui()
         except AuthError as e: messagebox.showerror("AUTH_ERROR", str(e))
 
+    def show_reset(self):
+        for widget in self.winfo_children(): widget.destroy()
+        tk.Label(self, text="=== PASSWORD OVERRIDE ===", font=("Consolas", 16, "bold"), fg=THEME["accent"], bg=THEME["bg"]).pack(pady=20)
+        
+        tk.Label(self, text=">_ USERNAME:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
+        self.res_user = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"])
+        self.res_user.pack(fill="x", padx=40, pady=5)
+        
+        tk.Label(self, text=">_ SECRET HINT:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
+        self.res_hint = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"])
+        self.res_hint.pack(fill="x", padx=40, pady=5)
+        
+        tk.Label(self, text=">_ NEW PASSWORD:", font=THEME["font_main"], fg=THEME["fg"], bg=THEME["bg"]).pack(anchor="w", padx=40)
+        self.res_pass = tk.Entry(self, font=("Consolas", 12), bg=THEME["btn_bg"], fg=THEME["fg"], insertbackground=THEME["fg"], show="*")
+        self.res_pass.pack(fill="x", padx=40, pady=5)
+        
+        btn_st = {"font": THEME["font_main"], "bg": THEME["btn_bg"], "fg": THEME["fg"], "activebackground": THEME["active"], "relief": "flat", "bd": 1}
+        tk.Button(self, text="[ OVERRIDE_PROTOCOL ]", command=self.do_reset, **btn_st).pack(fill="x", padx=40, pady=15)
+        tk.Button(self, text="<< BACK", command=self.build_ui, bg=THEME["bg"], fg=THEME["accent"], relief="flat").pack()
+
+    def do_reset(self):
+        success, msg = DatabaseEngine.reset_password(self.res_user.get(), self.res_hint.get(), self.res_pass.get())
+        if success:
+            messagebox.showinfo("SYS_MSG", msg)
+            self.build_ui()
+        else:
+            messagebox.showerror("AUTH_ERROR", msg)
+
 class TerminalGUI(tk.Tk):
     def __init__(self, user_id):
         super().__init__()
         self.user_id = user_id
-        self.title("SYSTEM.CORE // V9.0 ENTERPRISE")
+        self.title("SYSTEM.CORE // V10.0 ENTERPRISE")
         self.geometry("380x280")
         self.resizable(False, False)
         self.attributes('-topmost', True) 
@@ -272,9 +268,6 @@ class TerminalGUI(tk.Tk):
     def open_sandbox(self):
         SandboxWindow(self)
 
-# ==========================================
-# EKSİKSİZ CAS LABORATUVARI (BUTONLAR GERİ GELDİ)
-# ==========================================
 class LabWindow(tk.Toplevel):
     def __init__(self, parent, original_text, user_id):
         super().__init__(parent)
@@ -283,9 +276,8 @@ class LabWindow(tk.Toplevel):
         self.geometry("850x750")
         self.configure(bg=THEME["bg"])
         self.current_canvas = None 
-        self.current_expr = None # Butonların çalışması için hafıza
+        self.current_expr = None 
         
-        # ÜST PANEL
         f1 = tk.Frame(self, bg=THEME["btn_bg"], bd=1, highlightbackground=THEME["fg"], highlightthickness=1)
         f1.pack(fill="x", padx=10, pady=10)
         tk.Label(f1, text=">_ GİRDİ:", font=("Consolas", 12, "bold"), fg=THEME["fg"], bg=THEME["btn_bg"]).pack(side="left", padx=10)
@@ -294,11 +286,9 @@ class LabWindow(tk.Toplevel):
         self.entry_expr.insert(0, original_text)
         tk.Button(f1, text="[ İŞLE & ÇİZ ]", bg=THEME["bg"], fg=THEME["fg"], command=self.update_lab).pack(side="right", padx=10)
 
-        # GRAFİK PANELİ
         self.graph_frame = tk.Frame(self, bg=THEME["bg"], bd=1, highlightbackground=THEME["accent"], highlightthickness=1)
         self.graph_frame.pack(fill="both", expand=True, padx=10, pady=5)
         
-        # MATEMATİK OPERASYON BUTONLARI (Geri Getirildi)
         action_frame = tk.Frame(self, bg=THEME["bg"])
         action_frame.pack(fill="x", padx=10, pady=5)
         btn_st = {"font": THEME["font_main"], "bg": THEME["btn_bg"], "fg": THEME["fg"], "activebackground": THEME["accent"], "relief": "flat", "bd": 1, "highlightbackground": THEME["fg"], "highlightthickness": 1}
@@ -308,7 +298,6 @@ class LabWindow(tk.Toplevel):
         tk.Button(action_frame, text="[ ÇARPANLAR ]", command=self.do_factor, **btn_st).pack(side="left", expand=True, padx=2)
         tk.Button(action_frame, text="[ KÖK_BUL ]", command=self.do_solve, **btn_st).pack(side="left", expand=True, padx=2)
 
-        # TERMİNAL
         self.console = tk.Text(self, height=5, bg=THEME["btn_bg"], fg=THEME["fg"], font=("Consolas", 10), wrap="word")
         self.console.pack(fill="x", padx=10, pady=10)
         
@@ -379,8 +368,6 @@ class LabWindow(tk.Toplevel):
             ax.tick_params(colors=THEME["fg"])
             self.current_canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
             self.current_canvas.draw(); self.current_canvas.get_tk_widget().pack(fill="both", expand=True)
-
-        # V10 DÜZELTMESİ (Madde 21): İki değişken (x, y) algılanırsa otomatik 3D yüzey çizer
         elif len(symbols) == 2:
             fig = plt.figure(figsize=(6, 4), dpi=100)
             fig.patch.set_facecolor(THEME["bg"])
@@ -399,9 +386,6 @@ class LabWindow(tk.Toplevel):
         if self.current_canvas: plt.close('all'); gc.collect()
         self.destroy()
 
-# ==========================================
-# EKSİKSİZ SANDBOX SIM STUDIO (3D EVREN KURUCU GERİ GELDİ)
-# ==========================================
 class SandboxWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -437,7 +421,6 @@ class SandboxWindow(tk.Toplevel):
 
     def run_sandbox(self):
         try:
-            # Beyaz liste kontrolü
             MathEngine._lexical_validation(self.ent_base.get())
             MathEngine._lexical_validation(self.ent_warp.get())
             
