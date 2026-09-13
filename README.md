@@ -68,7 +68,7 @@ Step 4: Boot the Application
 Execute the main script from the root directory:
 
 Bash
-ReconCAS/main.py
+python main.py
 (Note: The SQLite database will be generated automatically upon the first launch. Use CREATE_ACCOUNT to register your first operator credential before logging in.)
 
 📜 License
