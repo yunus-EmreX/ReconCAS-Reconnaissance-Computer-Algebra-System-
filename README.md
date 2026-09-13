@@ -55,7 +55,7 @@ Ensure the installation path matches the default: C:\Program Files\Tesseract-OCR
 Step 2: Clone the Repository
 
 Bash
-git clone [https://github.com/YOUR_USERNAME/ReconCAS.git](https://github.com/YOUR_USERNAME/ReconCAS.git)
+git clone [[https://github.com/YOUR_USERNAME/ReconCAS.git](https://github.com/YOUR_USERNAME/ReconCAS.git)](https://github.com/yunus-EmreX/ReconCAS-Reconnaissance-Computer-Algebra-System-.git)
 cd ReconCAS
 Step 3: Install Dependencies
 Install the required Python packages via pip:
