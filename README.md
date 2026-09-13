@@ -49,7 +49,6 @@ A revolutionary 3D mathematical sandbox allowing users to warp and animate spati
 *   **Spatial Warping & Reverse Engineering:** Features interactive UI sliders (`A` for amplitude/height, `B` for gravity/slope). As users warp the space, the console reverse-engineers the live geometry, printing the active mathematical rule ($Z$) and absolute maximum resistance peaks ($Z_{MAX}$) in real-time.
 
 ### 🕵️ Industrial Debug Mode
-To eliminate "blind spots" in the vision engine, the main terminal features an animated Cyberpunk Toggle for Debug Mode. 
 * When activated, every OCR capture generates a diagnostic log inside the `logs/` directory.
 * It outputs the raw OpenCV-processed image (`.png`) and a text log (`.txt`) detailing the exact raw string read by Tesseract vs. the parsed output.
 
