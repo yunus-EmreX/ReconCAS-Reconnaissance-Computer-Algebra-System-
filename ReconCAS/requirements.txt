@@ -1,8 +1,0 @@
-pytesseract==0.3.10
-Pillow==10.0.0
-sympy==1.12
-numpy==1.26.0
-matplotlib==3.8.0
-bcrypt==4.0.1
-opencv-python==4.8.1.78
-pymupdf==1.28.2
